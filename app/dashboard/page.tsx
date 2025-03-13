@@ -8,8 +8,15 @@ import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { mockScheduleData } from "@/lib/mock-data"
 import { toast } from "@/hooks/use-toast"
+import { ProtectedRoute } from "@/components/protected-route"
+import { useAuth } from "@/lib/auth-context"
+import { Button } from "@/components/ui/button"
+import { LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function DashboardPage() {
+  const { user, signOut } = useAuth()
+  const router = useRouter()
   const [scheduleData, setScheduleData] = useState(mockScheduleData)
   const [isModifierOpen, setIsModifierOpen] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -75,55 +82,81 @@ export default function DashboardPage() {
       description: "Your schedule has been successfully updated.",
     })
 
-    // In a real app, you would notify team members here
-    // notifyTeam(updatedSlot, applyToAll)
+    // In a real app, you would save to Firebase here
+    // saveScheduleToFirebase(updatedSlot, user.uid)
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push("/login")
+    } catch (error) {
+      console.error("Error signing out:", error)
+    }
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header and other components remain the same */}
+    <ProtectedRoute>
+      <div className="flex min-h-screen flex-col">
+        <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
+          <div className="container flex h-16 items-center justify-between px-4">
+            <h1 className="text-lg font-semibold">WorkFlex Dashboard</h1>
+            <div className="flex items-center gap-4">
+              {user && (
+                <div className="text-sm">
+                  Welcome, {user.displayName || user.email}
+                </div>
+              )}
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </Button>
+            </div>
+          </div>
+        </header>
 
-      <main className="flex-1 container py-6">
-        <Tabs defaultValue="schedule" className="space-y-4">
-          {/* Tab headers remain the same */}
+        <main className="flex-1 container py-6">
+          <Tabs defaultValue="schedule" className="space-y-4">
+            {/* Tab headers remain the same */}
 
-          <TabsContent value="schedule" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Weekly Schedule</CardTitle>
-                <CardDescription>
-                  Click on any time slot to modify your schedule or click an empty area to add a new slot
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <WeeklySchedule
-                  scheduleData={scheduleData}
-                  onScheduleClick={handleScheduleClick}
-                  onAddSchedule={handleAddSchedule}
+            <TabsContent value="schedule" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Weekly Schedule</CardTitle>
+                  <CardDescription>
+                    Click on any time slot to modify your schedule or click an empty area to add a new slot
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <WeeklySchedule
+                    scheduleData={scheduleData}
+                    onScheduleClick={handleScheduleClick}
+                    onAddSchedule={handleAddSchedule}
+                  />
+                </CardContent>
+              </Card>
+
+              {isModifierOpen && selectedSlot && (
+                <ScheduleModifier
+                  slot={selectedSlot}
+                  onClose={() => {
+                    setIsModifierOpen(false)
+                    setSelectedSlot(null)
+                  }}
+                  onUpdate={handleScheduleUpdate}
                 />
-              </CardContent>
-            </Card>
+              )}
+            </TabsContent>
 
-            {isModifierOpen && selectedSlot && (
-              <ScheduleModifier
-                slot={selectedSlot}
-                onClose={() => {
-                  setIsModifierOpen(false)
-                  setSelectedSlot(null)
-                }}
-                onUpdate={handleScheduleUpdate}
-              />
-            )}
-          </TabsContent>
+            {/* Other tab contents remain the same */}
+          </Tabs>
+        </main>
 
-          {/* Other tab contents remain the same */}
-        </Tabs>
-      </main>
-
-      {showFeatureNotification && (
-        <FeatureNotification message="New feature: Click on any empty area in the schedule to add a new time block!" />
-      )}
-    </div>
+        {showFeatureNotification && (
+          <FeatureNotification message="New feature: Click on any empty area in the schedule to add a new time block!" />
+        )}
+      </div>
+    </ProtectedRoute>
   )
 }
 

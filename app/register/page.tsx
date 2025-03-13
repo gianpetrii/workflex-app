@@ -10,14 +10,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
+import { useAuth } from "@/lib/auth-context"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { signUp } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsLoading(true)
+    setError("")
 
     const formData = new FormData(event.currentTarget)
     const name = formData.get("name") as string
@@ -25,28 +29,35 @@ export default function RegisterPage() {
     const password = formData.get("password") as string
 
     try {
-      // In a real app, you would call your API to register the user
-      // const response = await fetch("/api/register", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ name, email, password }),
-      // })
-
-      // if (!response.ok) throw new Error("Registration failed")
+      // Register with Firebase
+      await signUp(email, password, name)
 
       toast({
         title: "Account created!",
-        description: "You've successfully registered. Redirecting to login...",
+        description: "You've successfully registered. Redirecting to dashboard...",
       })
 
-      // Simulate API call delay
-      setTimeout(() => {
-        router.push("/login")
-      }, 2000)
-    } catch (error) {
+      router.push("/dashboard")
+    } catch (error: any) {
+      console.error("Registration error:", error)
+      
+      // Handle specific Firebase auth errors
+      const errorCode = error.code
+      let errorMessage = "Something went wrong. Please try again."
+      
+      if (errorCode === 'auth/email-already-in-use') {
+        errorMessage = "This email is already in use. Please try another email or sign in."
+      } else if (errorCode === 'auth/invalid-email') {
+        errorMessage = "Invalid email address. Please check and try again."
+      } else if (errorCode === 'auth/weak-password') {
+        errorMessage = "Password is too weak. Please use a stronger password."
+      }
+      
+      setError(errorMessage)
+      
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -83,7 +94,15 @@ export default function RegisterPage() {
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
                   <Input id="password" name="password" type="password" required disabled={isLoading} />
+                  <p className="text-xs text-muted-foreground">
+                    Password must be at least 6 characters long
+                  </p>
                 </div>
+                {error && (
+                  <div className="text-sm text-red-500">
+                    {error}
+                  </div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex flex-col">

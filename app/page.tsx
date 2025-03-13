@@ -1,13 +1,28 @@
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CalendarDays, Users, Bell, ArrowRight } from "lucide-react"
 
 export default function Home() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Redirect to login page after a short delay
+    const timer = setTimeout(() => {
+      router.push("/login")
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [router])
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="border-b">
         <div className="container flex h-16 items-center px-4 sm:px-6 lg:px-8">
-          <h1 className="text-lg font-semibold">ScheduleSync</h1>
+          <h1 className="text-lg font-semibold">WorkFlex</h1>
           <nav className="ml-auto flex gap-4 sm:gap-6">
             <Link href="/login" className="text-sm font-medium hover:underline">
               Login
@@ -96,7 +111,7 @@ export default function Home() {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-gray-500 md:text-left">
-            © 2025 ScheduleSync. All rights reserved.
+            © 2025 WorkFlex. All rights reserved.
           </p>
         </div>
       </footer>

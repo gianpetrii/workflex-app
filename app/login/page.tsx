@@ -10,42 +10,53 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { signIn } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsLoading(true)
+    setError("")
 
     const formData = new FormData(event.currentTarget)
     const email = formData.get("email") as string
     const password = formData.get("password") as string
 
     try {
-      // In a real app, you would call your API to authenticate the user
-      // const response = await fetch("/api/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email, password }),
-      // })
-
-      // if (!response.ok) throw new Error("Authentication failed")
+      // Sign in with Firebase
+      await signIn(email, password)
 
       toast({
         title: "Login successful!",
         description: "Redirecting to dashboard...",
       })
 
-      // Simulate API call delay
-      setTimeout(() => {
-        router.push("/dashboard")
-      }, 2000)
-    } catch (error) {
+      router.push("/dashboard")
+    } catch (error: any) {
+      console.error("Login error:", error)
+      
+      // Handle specific Firebase auth errors
+      const errorCode = error.code
+      let errorMessage = "Invalid email or password. Please try again."
+      
+      if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
+        errorMessage = "Invalid email or password. Please try again."
+      } else if (errorCode === 'auth/too-many-requests') {
+        errorMessage = "Too many failed login attempts. Please try again later."
+      } else if (errorCode === 'auth/user-disabled') {
+        errorMessage = "This account has been disabled. Please contact support."
+      }
+      
+      setError(errorMessage)
+      
       toast({
         title: "Error",
-        description: "Invalid email or password. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -79,6 +90,11 @@ export default function LoginPage() {
                   <Label htmlFor="password">Password</Label>
                   <Input id="password" name="password" type="password" required disabled={isLoading} />
                 </div>
+                {error && (
+                  <div className="text-sm text-red-500">
+                    {error}
+                  </div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex flex-col">
