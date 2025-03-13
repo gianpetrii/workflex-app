@@ -34,10 +34,10 @@ export default function RegisterPage() {
 
       toast({
         title: "Account created!",
-        description: "You've successfully registered. Redirecting to dashboard...",
+        description: "You've successfully registered. Redirecting to your schedule...",
       })
 
-      router.push("/dashboard")
+      router.push("/my-schedule")
     } catch (error: any) {
       console.error("Registration error:", error)
       

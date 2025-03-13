@@ -13,8 +13,10 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Users } from "lucide-react"
 
-export default function DashboardPage() {
+export default function MySchedulePage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const [scheduleData, setScheduleData] = useState(mockScheduleData)
@@ -100,13 +102,19 @@ export default function DashboardPage() {
       <div className="flex min-h-screen flex-col w-full">
         <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
           <div className="container flex h-16 items-center justify-between px-4 mx-auto">
-            <h1 className="text-lg font-semibold">WorkFlex Dashboard</h1>
+            <h1 className="text-lg font-semibold">My Schedule</h1>
             <div className="flex items-center gap-4">
               {user && (
                 <div className="text-sm">
                   Welcome, {user.displayName || user.email}
                 </div>
               )}
+              <Link href="/team-schedule">
+                <Button variant="outline" size="sm">
+                  <Users className="h-4 w-4 mr-2" />
+                  Team Schedule
+                </Button>
+              </Link>
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign out

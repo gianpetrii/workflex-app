@@ -14,7 +14,7 @@ import { ProtectedRoute } from "@/components/protected-route"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 
-export default function TeamPage() {
+export default function TeamSchedulePage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const [selectedWeek, setSelectedWeek] = useState("current")
@@ -49,12 +49,12 @@ export default function TeamPage() {
         <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
           <div className="container flex h-16 items-center justify-between px-4 mx-auto">
             <div className="flex items-center gap-2">
-              <Link href="/dashboard">
+              <Link href="/my-schedule">
                 <Button variant="ghost" size="icon">
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
               </Link>
-              <h1 className="text-lg font-semibold">WorkFlex</h1>
+              <h1 className="text-lg font-semibold">Team Schedule</h1>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" aria-label="Notifications">
