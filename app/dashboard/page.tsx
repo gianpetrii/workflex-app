@@ -97,9 +97,9 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
-          <div className="container flex h-16 items-center justify-between px-4">
+      <div className="flex min-h-screen flex-col w-full">
+        <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
+          <div className="container flex h-16 items-center justify-between px-4 mx-auto">
             <h1 className="text-lg font-semibold">WorkFlex Dashboard</h1>
             <div className="flex items-center gap-4">
               {user && (
@@ -115,7 +115,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <main className="flex-1 container py-6">
+        <main className="flex-1 container py-6 mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs defaultValue="schedule" className="space-y-4">
             {/* Tab headers remain the same */}
 

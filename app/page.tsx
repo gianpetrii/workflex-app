@@ -19,9 +19,9 @@ export default function Home() {
   }, [router])
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="border-b">
-        <div className="container flex h-16 items-center px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col min-h-screen w-full">
+      <header className="border-b w-full">
+        <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 mx-auto">
           <h1 className="text-lg font-semibold">WorkFlex</h1>
           <nav className="ml-auto flex gap-4 sm:gap-6">
             <Link href="/login" className="text-sm font-medium hover:underline">
@@ -33,9 +33,9 @@ export default function Home() {
           </nav>
         </div>
       </header>
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-2">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
@@ -73,7 +73,7 @@ export default function Home() {
           </div>
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Key Features</h2>
@@ -108,8 +108,8 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="border-t py-6 md:py-0">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+      <footer className="border-t py-6 md:py-0 w-full">
+        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row mx-auto">
           <p className="text-center text-sm leading-loose text-gray-500 md:text-left">
             © 2025 WorkFlex. All rights reserved.
           </p>

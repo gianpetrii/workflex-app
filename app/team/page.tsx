@@ -45,9 +45,9 @@ export default function TeamPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen flex-col bg-gray-50">
-        <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
-          <div className="container flex h-16 items-center justify-between px-4">
+      <div className="flex min-h-screen flex-col bg-gray-50 w-full">
+        <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
+          <div className="container flex h-16 items-center justify-between px-4 mx-auto">
             <div className="flex items-center gap-2">
               <Link href="/dashboard">
                 <Button variant="ghost" size="icon">
@@ -78,7 +78,7 @@ export default function TeamPage() {
             </div>
           </div>
         </header>
-        <main className="flex-1 container py-6">
+        <main className="flex-1 container py-6 mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="shadow-lg bg-white">
             <CardHeader className="border-b">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
