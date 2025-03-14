@@ -20,14 +20,18 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let firebaseApp;
-let analytics;
+let analytics = null;
 
 // Check if Firebase is already initialized
 if (!getApps().length) {
-  firebaseApp = initializeApp(firebaseConfig);
-  // Only initialize analytics on the client side
-  if (typeof window !== 'undefined') {
-    analytics = getAnalytics(firebaseApp);
+  try {
+    firebaseApp = initializeApp(firebaseConfig);
+    // Only initialize analytics on the client side
+    if (typeof window !== 'undefined') {
+      analytics = getAnalytics(firebaseApp);
+    }
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
   }
 } else {
   firebaseApp = getApps()[0];
@@ -38,4 +42,4 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-export { firebaseApp, auth, db, storage }; 
+export { firebaseApp, auth, db, storage, analytics }; 

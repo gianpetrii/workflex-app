@@ -12,13 +12,17 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
 import { Separator } from "@/components/ui/separator"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signInWithGoogle, resetPassword } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isResetLoading, setIsResetLoading] = useState(false)
   const [error, setError] = useState("")
+  const [resetEmail, setResetEmail] = useState("")
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -96,6 +100,38 @@ export default function LoginPage() {
     }
   }
 
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault()
+    setIsResetLoading(true)
+
+    try {
+      await resetPassword(resetEmail)
+      setIsResetDialogOpen(false)
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for instructions to reset your password.",
+      })
+    } catch (error: any) {
+      console.error("Password reset error:", error)
+      
+      let errorMessage = "Failed to send password reset email. Please try again."
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = "No account found with this email address."
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Invalid email address. Please check and try again."
+      }
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsResetLoading(false)
+    }
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
@@ -121,6 +157,14 @@ export default function LoginPage() {
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
                   <Input id="password" name="password" type="password" required disabled={isLoading} />
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    className="px-0 text-xs justify-start h-auto"
+                    onClick={() => setIsResetDialogOpen(true)}
+                  >
+                    Forgot password?
+                  </Button>
                 </div>
                 {error && (
                   <div className="text-sm text-red-500">
@@ -161,6 +205,46 @@ export default function LoginPage() {
           </form>
         </Card>
       </div>
+
+      {/* Password Reset Dialog */}
+      <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>
+              Enter your email address and we'll send you a link to reset your password.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleResetPassword}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsResetDialogOpen(false)}
+                disabled={isResetLoading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isResetLoading}>
+                {isResetLoading ? "Sending..." : "Send reset link"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
