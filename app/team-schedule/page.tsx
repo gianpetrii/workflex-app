@@ -45,21 +45,18 @@ export default function TeamSchedulePage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen flex-col bg-gray-50 w-full">
+      <div className="flex min-h-screen flex-col w-full">
         <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
           <div className="container flex h-16 items-center justify-between px-4 mx-auto">
             <div className="flex items-center gap-2">
-              <Link href="/my-schedule">
-                <Button variant="ghost" size="icon">
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-              </Link>
-              <h1 className="text-lg font-semibold">Team Schedule</h1>
+              <h1 className="text-lg font-semibold">WorkFlex App</h1>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" aria-label="Notifications">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <Link href="/my-schedule">
+                <Button variant="outline" size="sm">
+                  My Schedule
+                </Button>
+              </Link>
               <div className="flex items-center gap-2">
                 <Avatar>
                   <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
@@ -83,7 +80,7 @@ export default function TeamSchedulePage() {
             <CardHeader className="border-b">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <CardTitle className="text-2xl">Team Schedule View</CardTitle>
+                  <CardTitle className="text-2xl">Team Schedule</CardTitle>
                   <CardDescription>Visualize and coordinate team schedules</CardDescription>
                 </div>
                 <div>

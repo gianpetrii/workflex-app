@@ -15,6 +15,7 @@ import { LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Users } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function MySchedulePage() {
   const { user, signOut } = useAuth()
@@ -102,22 +103,30 @@ export default function MySchedulePage() {
       <div className="flex min-h-screen flex-col w-full">
         <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
           <div className="container flex h-16 items-center justify-between px-4 mx-auto">
-            <h1 className="text-lg font-semibold">My Schedule</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-semibold">WorkFlex App</h1>
+            </div>
             <div className="flex items-center gap-4">
-              {user && (
-                <div className="text-sm">
-                  Welcome, {user.displayName || user.email}
-                </div>
-              )}
               <Link href="/team-schedule">
                 <Button variant="outline" size="sm">
                   <Users className="h-4 w-4 mr-2" />
                   Team Schedule
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign out
+              <div className="flex items-center gap-2">
+                <Avatar>
+                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+                  <AvatarFallback>
+                    {user?.displayName ? user.displayName.charAt(0) : user?.email?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium">{user?.displayName || "User"}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" aria-label="Log out" onClick={handleSignOut}>
+                <LogOut className="h-5 w-5" />
               </Button>
             </div>
           </div>
