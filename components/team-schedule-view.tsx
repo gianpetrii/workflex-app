@@ -8,6 +8,24 @@ import { MapPin, GripVertical, Users } from "lucide-react"
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
 import { TeamSelector } from "@/components/team-selector"
 
+// Definir colores para cada ubicación
+const locationColors = {
+  "Office": "bg-blue-200",
+  "Home": "bg-green-200",
+  "Client Site": "bg-purple-200",
+  "Co-working Space": "bg-amber-200",
+  // Color por defecto para ubicaciones no especificadas
+  "default": "bg-gray-200"
+};
+
+// Definir colores para la leyenda
+const legendColors = {
+  "Office": "bg-blue-200",
+  "Home": "bg-green-200",
+  "Client Site": "bg-purple-200",
+  "Co-working Space": "bg-amber-200",
+};
+
 export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null }) {
   const [selectedDay, setSelectedDay] = useState("Monday")
   const [selectedTeams, setSelectedTeams] = useState(new Set(["all"]))
@@ -167,6 +185,25 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
 
   const colocatedMembers = useMemo(() => findColocatedMembers(selectedDay), [findColocatedMembers, selectedDay])
 
+  // Obtener ubicaciones únicas para la leyenda
+  const uniqueLocations = useMemo(() => {
+    const locations = new Set();
+    
+    // Agregar ubicaciones del usuario
+    userSchedule.forEach(slot => locations.add(slot.location));
+    
+    // Agregar ubicaciones de los miembros del equipo
+    teams.forEach(team => {
+      team.members.forEach(member => {
+        if (member.schedule) {
+          member.schedule.forEach(slot => locations.add(slot.location));
+        }
+      });
+    });
+    
+    return Array.from(locations);
+  }, [userSchedule, teams]);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
@@ -183,19 +220,36 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
         <TeamSelector teams={scheduleData.teams} selectedTeams={selectedTeams} onChange={setSelectedTeams} />
       </div>
 
+      {/* Leyenda de ubicaciones */}
+      <div className="p-4 bg-gray-50 rounded-lg mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {Object.entries(legendColors).map(([location, colorClass]) => (
+            <div key={location} className="flex items-center gap-2">
+              <div className={`w-4 h-4 ${colorClass} rounded-sm`}></div>
+              <span className="text-sm">{location}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 border-t pt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-300 opacity-50 rounded-sm"></div>
+              <span className="text-sm">Overlapping Hours</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-yellow-200 opacity-30 rounded-sm"></div>
+              <span className="text-sm flex items-center">
+                <Users className="h-3 w-3 mr-1" />
+                Co-located Work
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[auto_1fr] gap-2">
-            {/* Time column */}
-            <div className="col-span-1">
-              <div className="h-10"></div> {/* Empty cell for alignment */}
-              {hours.map((hour) => (
-                <div key={hour} className="h-16 flex items-center justify-end pr-2 text-sm text-muted-foreground">
-                  {formatHour(hour)}
-                </div>
-              ))}
-            </div>
-
+          <div className="grid grid-cols-[1fr] gap-2">
             {/* Schedule grid */}
             <div className="col-span-1 relative">
               {/* Vertical time slot lines */}
@@ -290,8 +344,8 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
   const duration = (((endHour - startHour) * 60 + (endMinute - startMinute)) / 60) * (100 / 14) // percentage width
 
   const getBackgroundColor = () => {
-    if (isUser) return "bg-blue-200"
-    return "bg-green-200"
+    // Usar el color correspondiente a la ubicación
+    return locationColors[slot.location] || locationColors.default;
   }
 
   // Check if this slot has co-located members
@@ -324,7 +378,7 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
           {isColocated && (
             <Badge
               variant="outline"
-              className="ml-auto bg-yellow-100 text-yellow-800 border-yellow-200 group-hover:opacity-100 opacity-75 transition-opacity"
+              className="ml-auto bg-white text-black border-black group-hover:opacity-100 opacity-90 transition-opacity"
             >
               <Users className="h-3 w-3 mr-1" />
               <span className="text-[10px]">Co-located</span>
@@ -333,7 +387,7 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
         </div>
       </div>
 
-      {/* Overlapping time indicator */}
+      {/* Overlapping time indicator con 10% más de opacidad */}
       {overlappingSlots &&
         overlappingSlots.map((overlapSlot, index) => {
           const overlapStartHour = Number.parseInt(overlapSlot.startTime.split(":")[0])
@@ -353,7 +407,7 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
           return (
             <div
               key={index}
-              className="absolute inset-0 bg-purple-300 opacity-50"
+              className="absolute inset-0 bg-purple-300 opacity-50" // Volvemos a 50% de opacidad
               style={{
                 left: `${overlapStartPosition}%`,
                 width: `${overlapDuration}%`,
@@ -362,8 +416,8 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
           )
         })}
 
-      {/* Co-located indicator */}
-      {isColocated && <div className="absolute inset-0 bg-yellow-200 opacity-30"></div>}
+      {/* Co-located indicator con 10% más de opacidad */}
+      {isColocated && <div className="absolute inset-0 bg-yellow-200 opacity-30"></div>} {/* Volvemos a 30% de opacidad */}
     </div>
   )
 }
