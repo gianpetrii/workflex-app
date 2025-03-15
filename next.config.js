@@ -8,8 +8,7 @@ const nextConfig = {
     // Desactivar la verificación de TypeScript durante la compilación
     ignoreBuildErrors: true,
   },
-  output: 'export',
-  distDir: 'out',
+  // Eliminamos la configuración de exportación estática
 }
 
 module.exports = nextConfig 
