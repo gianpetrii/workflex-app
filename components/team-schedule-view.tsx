@@ -206,7 +206,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+      <div className="flex flex-col md:flex-row justify-between gap-4 mb-4 relative z-50 bg-white">
         <Tabs defaultValue={selectedDay} onValueChange={setSelectedDay} className="w-full md:w-auto">
           <TabsList className="w-full md:w-auto justify-start overflow-auto">
             {days.map((day) => (
@@ -221,7 +221,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
       </div>
 
       {/* Leyenda de ubicaciones */}
-      <div className="p-4 bg-gray-50 rounded-lg mb-4">
+      <div className="p-4 bg-gray-50 rounded-lg mb-4 relative z-40">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(legendColors).map(([location, colorClass]) => (
             <div key={location} className="flex items-center gap-2">
@@ -229,21 +229,6 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
               <span className="text-sm">{location}</span>
             </div>
           ))}
-        </div>
-        <div className="mt-3 border-t pt-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-purple-300 opacity-50 rounded-sm"></div>
-              <span className="text-sm">Overlapping Hours</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-yellow-200 opacity-30 rounded-sm"></div>
-              <span className="text-sm flex items-center">
-                <Users className="h-3 w-3 mr-1" />
-                Co-located Work
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -275,7 +260,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
-                              className={`relative border-b last:border-b-0 ${snapshot.isDragging ? "bg-gray-50 shadow-md rounded-md z-10" : ""}`}
+                              className={`relative border-b last:border-b-0 ${snapshot.isDragging ? "bg-gray-50 shadow-md rounded-md z-30" : ""}`}
                             >
                               <div className="h-10 flex items-center gap-2 pl-2">
                                 <div {...provided.dragHandleProps} className="cursor-move">
@@ -378,7 +363,8 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
           {isColocated && (
             <Badge
               variant="outline"
-              className="ml-auto bg-white text-black border-black group-hover:opacity-100 opacity-90 transition-opacity"
+              className="ml-auto bg-white text-black group-hover:opacity-100 opacity-90 transition-opacity"
+              style={{ zIndex: 20 }}
             >
               <Users className="h-3 w-3 mr-1" />
               <span className="text-[10px]">Co-located</span>
@@ -387,7 +373,7 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
         </div>
       </div>
 
-      {/* Overlapping time indicator con 10% más de opacidad */}
+      {/* Overlapping time indicator con opacidad del 30% */}
       {overlappingSlots &&
         overlappingSlots.map((overlapSlot, index) => {
           const overlapStartHour = Number.parseInt(overlapSlot.startTime.split(":")[0])
@@ -407,17 +393,15 @@ function ScheduleBlock({ slot, isUser, overlappingSlots, colocatedMembers, membe
           return (
             <div
               key={index}
-              className="absolute inset-0 bg-purple-300 opacity-50" // Volvemos a 50% de opacidad
+              className="absolute inset-0 bg-black opacity-30" // Cambiado a color negro con 30% de opacidad
               style={{
                 left: `${overlapStartPosition}%`,
                 width: `${overlapDuration}%`,
+                zIndex: 5 // Asegurar que esté por encima del fondo pero por debajo del contenido
               }}
             />
           )
         })}
-
-      {/* Co-located indicator con 10% más de opacidad */}
-      {isColocated && <div className="absolute inset-0 bg-yellow-200 opacity-30"></div>} {/* Volvemos a 30% de opacidad */}
     </div>
   )
 }
