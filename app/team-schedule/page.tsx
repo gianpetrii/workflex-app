@@ -100,31 +100,6 @@ export default function TeamSchedulePage() {
             <CardContent className="p-6">
               <TeamScheduleView teams={teams} userSchedule={mockScheduleData} onScheduleUpdate={handleScheduleUpdate} />
 
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-sm font-medium mb-2">Legend:</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-200 rounded-sm"></div>
-                    <span className="text-sm">Your Schedule</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-200 rounded-sm"></div>
-                    <span className="text-sm">Team Member Schedule</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-purple-300 opacity-50 rounded-sm"></div>
-                    <span className="text-sm">Overlapping Hours</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-yellow-200 opacity-30 rounded-sm"></div>
-                    <span className="text-sm flex items-center">
-                      <Users className="h-3 w-3 mr-1" />
-                      Co-located Work
-                    </span>
-                  </div>
-                </div>
-              </div>
-
               <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <div className="flex items-start gap-2">
                   <div className="bg-blue-100 p-1 rounded-full mt-0.5">
