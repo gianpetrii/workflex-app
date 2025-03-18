@@ -8,7 +8,12 @@ const nextConfig = {
     // Desactivar la verificación de TypeScript durante la compilación
     ignoreBuildErrors: true,
   },
-  // Eliminamos la configuración de exportación estática
+  output: 'export',
+  distDir: 'out',
+  // Omitir las rutas API ya que no son compatibles con exportación estática
+  images: {
+    unoptimized: true
+  }
 }
 
 module.exports = nextConfig 
