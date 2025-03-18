@@ -1,5 +1,6 @@
 "use client"
 import { MapPin } from "lucide-react"
+import { ClientOnly } from "./client-only"
 
 // Definir colores para cada ubicación (igual que en team-schedule-view.tsx)
 const locationColors = {
@@ -47,16 +48,18 @@ export function WeeklySchedule({ scheduleData, onScheduleClick, onAddSchedule })
   return (
     <div>
       {/* Leyenda de ubicaciones */}
-      <div className="p-4 bg-gray-50 rounded-lg mb-4 relative z-40">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {Object.entries(legendColors).map(([location, colorClass]) => (
-            <div key={location} className="flex items-center gap-2">
-              <div className={`w-4 h-4 ${colorClass} rounded-sm`}></div>
-              <span className="text-sm">{location}</span>
-            </div>
-          ))}
+      <ClientOnly>
+        <div className="p-4 bg-gray-50 rounded-lg mb-4 relative z-40">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.entries(legendColors).map(([location, colorClass]) => (
+              <div key={location} className="flex items-center gap-2">
+                <div className={`w-4 h-4 ${colorClass} rounded-sm`}></div>
+                <span className="text-sm">{location}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </ClientOnly>
 
       <div className="overflow-x-auto">
         <div className="min-w-[800px]">
