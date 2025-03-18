@@ -13,17 +13,6 @@ const nextConfig = {
   // Omitir las rutas API ya que no son compatibles con exportación estática
   images: {
     unoptimized: true
-  },
-  // Excluir rutas de API y middleware de la exportación
-  experimental: {
-    excludeRoutes: [
-      '/api/auth/[...nextauth]',
-      '/api/messages',
-      '/api/schedule',
-      '/api/schedules',
-      '/api/team',
-      '/api/teams'
-    ]
   }
 }
 
