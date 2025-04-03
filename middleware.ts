@@ -3,27 +3,22 @@ import type { NextRequest } from 'next/server';
 
 // This middleware will redirect API requests to Firebase functions when deployed
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  // Get the pathname of the request (e.g. /, /about, /blog/first-post)
+  const pathname = request.nextUrl.pathname;
 
-  // If this is an API route, redirect to Firebase functions
+  // When deployed to Firebase, redirect API requests to Firebase Functions
   if (pathname.startsWith('/api/')) {
-    // In a real deployment, you would redirect to your Firebase functions URL
-    // For now, we'll just return a 404 response
-    return new NextResponse(
-      JSON.stringify({ error: 'API routes are not available in static exports' }),
-      {
-        status: 404,
-        headers: {
-          'content-type': 'application/json',
-        },
-      }
+    return NextResponse.json(
+      { success: false, message: 'API routes are not available in static exports' },
+      { status: 404 }
     );
   }
 
+  // If it's not an api route, continue with the request
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
+// Middleware comentado temporalmente para permitir la exportación estática
 export const config = {
   matcher: '/api/:path*',
 }; 

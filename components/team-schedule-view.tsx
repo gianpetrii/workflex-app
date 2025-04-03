@@ -248,7 +248,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
               </div>
 
               <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="team-members" isDropDisabled={false}>
+                <Droppable droppableId="team-members" isDropDisabled={false} isCombineEnabled={false}>
                   {(provided, snapshot) => (
                     <div {...provided.droppableProps} ref={provided.innerRef}>
                       {/* Team member rows */}

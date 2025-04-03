@@ -65,3 +65,7 @@ ui-debug.log
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Project specific
+/temp-api-backup/
+workflex-app-dist.zip
