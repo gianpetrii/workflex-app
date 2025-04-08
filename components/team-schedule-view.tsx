@@ -8,6 +8,8 @@ import { MapPin, GripVertical, Users } from "lucide-react"
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
 import { TeamSelector } from "@/components/team-selector"
 import { ClientOnly } from "./client-only"
+import { useTeam } from "@/lib/team-context"
+import { Permission } from "@/lib/team-management"
 
 // Definir colores para cada ubicación
 const locationColors = {
@@ -27,20 +29,52 @@ const legendColors = {
   "Co-working Space": "bg-amber-200",
 };
 
-export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null }) {
+export function TeamScheduleView({ teams: initialTeams, userSchedule, onScheduleUpdate = null }) {
+  const { teams: contextTeams, selectedTeamId, hasPermission } = useTeam();
   const [selectedDay, setSelectedDay] = useState("Monday")
   const [selectedTeams, setSelectedTeams] = useState(new Set(["all"]))
   const [memberOrder, setMemberOrder] = useState([])
-  const [scheduleData, setScheduleData] = useState({ userSchedule, teams })
+  const [scheduleData, setScheduleData] = useState({ userSchedule, teams: initialTeams })
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
   const hours = Array.from({ length: 14 }, (_, i) => i + 7) // 7 AM to 8 PM
+  
+  // Si tenemos equipos en el contexto, los usamos en lugar de los iniciales
+  useEffect(() => {
+    if (contextTeams.length > 0) {
+      // Adaptar el formato de los equipos del contexto al formato esperado por el componente
+      const adaptedTeams = contextTeams.map(team => ({
+        id: team.id,
+        name: team.name,
+        members: team.members.map(member => ({
+          id: member.id,
+          name: member.name,
+          avatar: member.avatar || "/placeholder.svg?height=32&width=32",
+          // Mantenemos el schedule existente o creamos uno vacío
+          schedule: []
+        }))
+      }));
+      
+      setScheduleData(prev => ({
+        ...prev,
+        teams: adaptedTeams
+      }));
+      
+      // Si hay un equipo seleccionado en el contexto, lo seleccionamos aquí también
+      if (selectedTeamId) {
+        setSelectedTeams(new Set([selectedTeamId]));
+      }
+    }
+  }, [contextTeams, selectedTeamId]);
+  
+  // Restringir la visualización según los permisos
+  const canViewSchedule = !selectedTeamId || hasPermission(Permission.VIEW_SCHEDULE);
 
   // Simulate real-time updates
   useEffect(() => {
     const interval = setInterval(() => {
       // Simulate receiving updates from other users
-      const randomTeamIndex = Math.floor(Math.random() * teams.length)
-      const randomTeam = teams[randomTeamIndex]
+      const randomTeamIndex = Math.floor(Math.random() * scheduleData.teams.length)
+      const randomTeam = scheduleData.teams[randomTeamIndex]
       const randomMemberIndex = Math.floor(Math.random() * randomTeam.members.length)
       const randomMember = randomTeam.members[randomMemberIndex]
 
@@ -73,7 +107,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
             }
 
             // Update the teams data
-            const updatedTeams = [...teams]
+            const updatedTeams = [...scheduleData.teams]
             updatedTeams[randomTeamIndex].members[randomMemberIndex].schedule = updatedSchedule
 
             setScheduleData((prev) => ({
@@ -86,7 +120,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
     }, 10000) // Update every 10 seconds
 
     return () => clearInterval(interval)
-  }, [teams])
+  }, [scheduleData.teams])
 
   const formatHour = (hour) => {
     return hour === 12 ? "12 PM" : hour < 12 ? `${hour} AM` : `${hour - 12} PM`
@@ -96,6 +130,9 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
   const userDaySchedule = scheduleData.userSchedule.filter((slot) => slot.day === selectedDay)
 
   const getSelectedTeamMembers = useCallback(() => {
+    // Si no tiene permiso para ver el horario, devolver un array vacío
+    if (selectedTeamId && !canViewSchedule) return [];
+    
     if (selectedTeams.size === 0) return []
     if (selectedTeams.has("all")) {
       return scheduleData.teams.flatMap((team) => team.members.map((member) => ({ ...member, teamName: team.name })))
@@ -103,7 +140,7 @@ export function TeamScheduleView({ teams, userSchedule, onScheduleUpdate = null 
     return scheduleData.teams
       .filter((team) => selectedTeams.has(team.id))
       .flatMap((team) => team.members.map((member) => ({ ...member, teamName: team.name })))
-  }, [selectedTeams, scheduleData.teams])
+  }, [selectedTeams, scheduleData.teams, selectedTeamId, canViewSchedule])
 
   const orderedMembers = useMemo(() => {
     const selectedMembers = getSelectedTeamMembers()

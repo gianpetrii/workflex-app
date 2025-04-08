@@ -18,63 +18,65 @@ export default function TeamSchedulePage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const [selectedWeek, setSelectedWeek] = useState("current")
+  const [teams, setTeams] = useState(mockTeamData)
 
-  // In a real app, you would fetch this data based on the selected week
-  const teams = Object.entries(mockTeamData).map(([id, members]) => ({
-    id,
-    name: id.charAt(0).toUpperCase() + id.slice(1),
-    members,
-  }))
-
-  const handleScheduleUpdate = (updatedSchedule) => {
-    // In a real app, you would update the schedule in the database
+  // Manejar actualizaciones de horario
+  const handleScheduleUpdate = (memberId, schedule) => {
+    console.log("Schedule updated", memberId, schedule)
+    // En un entorno real, esto se enviaría al backend para persistirlo
     toast({
-      title: "Schedule updated",
-      description: "Changes have been saved and shared with your team.",
+      title: "Schedule Updated",
+      description: "Your team schedule changes have been saved.",
     })
   }
 
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-      router.push("/login")
-    } catch (error) {
-      console.error("Error signing out:", error)
-    }
+  if (!user) {
+    return null // La protección se maneja en el componente ProtectedRoute
   }
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen flex-col w-full">
-        <header className="sticky top-0 z-10 border-b bg-white shadow-sm w-full">
-          <div className="container flex h-16 items-center justify-between px-4 mx-auto">
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-semibold">WorkFlex App</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/my-schedule">
-                <Button variant="outline" size="sm">
-                  My Schedule
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <header className="bg-white border-b sticky top-0 z-50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-4">
+                <Link href="/dashboard">
+                  <Button variant="ghost" size="icon">
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <h1 className="text-xl font-semibold">WorkFlex</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/teams">
+                    <Users className="h-4 w-4 mr-2" />
+                    Manage Teams
+                  </Link>
                 </Button>
-              </Link>
-              <div className="flex items-center gap-2">
-                <Avatar>
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                  <AvatarFallback>
-                    {user?.displayName ? user.displayName.charAt(0) : user?.email?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden md:block">
-                  <p className="text-sm font-medium">{user?.displayName || "User"}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                <div className="flex items-center">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.photoURL} alt={user.displayName} />
+                    <AvatarFallback>{user.displayName?.charAt(0) || "U"}</AvatarFallback>
+                  </Avatar>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      signOut()
+                      router.push("/")
+                    }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign out
+                  </Button>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" aria-label="Log out" onClick={handleSignOut}>
-                <LogOut className="h-5 w-5" />
-              </Button>
             </div>
           </div>
         </header>
+
         <main className="flex-1 container py-6 mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="shadow-lg bg-white">
             <CardHeader className="border-b">
@@ -97,7 +99,7 @@ export default function TeamSchedulePage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="pt-6">
               <TeamScheduleView teams={teams} userSchedule={mockScheduleData} onScheduleUpdate={handleScheduleUpdate} />
 
               <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">

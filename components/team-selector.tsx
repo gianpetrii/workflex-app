@@ -1,15 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useTeam } from "@/lib/team-context"
+import { Permission } from "@/lib/team-management"
 
 export function TeamSelector({ teams, selectedTeams, onChange }) {
   const [open, setOpen] = useState(false)
+  const { selectedTeamId, hasPermission } = useTeam();
+  
+  // Si hay un equipo seleccionado en el contexto y no tenemos permiso para ver otros equipos,
+  // deshabilitar la selección de equipos
+  const isDisabled = selectedTeamId && !hasPermission(Permission.VIEW_OTHER_TEAMS);
+  
+  // Sincronizar con el equipo seleccionado en el contexto
+  useEffect(() => {
+    if (selectedTeamId && isDisabled) {
+      onChange(new Set([selectedTeamId]));
+    }
+  }, [selectedTeamId, isDisabled, onChange]);
 
   const handleSelectTeam = (teamId) => {
+    // Si está deshabilitado, no permitir cambios
+    if (isDisabled) return;
+    
     let newSelection
 
     if (teamId === "all") {
@@ -53,7 +70,13 @@ export function TeamSelector({ teams, selectedTeams, onChange }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open} 
+          className="w-[200px] justify-between"
+          disabled={isDisabled}
+        >
           {getSelectedTeamsLabel()}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -64,15 +87,18 @@ export function TeamSelector({ teams, selectedTeams, onChange }) {
           <CommandList>
             <CommandEmpty>No team found.</CommandEmpty>
             <CommandGroup>
-              <CommandItem onSelect={() => handleSelectTeam("all")} className="flex items-center justify-between">
-                <span>All Teams</span>
-                {selectedTeams.has("all") && <Check className="h-4 w-4" />}
-              </CommandItem>
+              {!isDisabled && (
+                <CommandItem onSelect={() => handleSelectTeam("all")} className="flex items-center justify-between">
+                  <span>All Teams</span>
+                  {selectedTeams.has("all") && <Check className="h-4 w-4" />}
+                </CommandItem>
+              )}
               {teams.map((team) => (
                 <CommandItem
                   key={team.id}
                   onSelect={() => handleSelectTeam(team.id)}
                   className="flex items-center justify-between"
+                  disabled={isDisabled && team.id !== selectedTeamId}
                 >
                   <span>{team.name}</span>
                   {(selectedTeams.has(team.id) || selectedTeams.has("all")) && <Check className="h-4 w-4" />}
